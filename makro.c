@@ -75,12 +75,12 @@ void makro(std::string inFileName){
   }
 
   h_upsilon->Draw("hist");
-  h_upsilon->GetXaxis()->SetTitle("#Upsilon [MeV]");
+  h_upsilon->GetXaxis()->SetTitle("#Upsilon mass [MeV]");
   h_upsilon->GetXaxis()->SetTitleOffset(1.5);
   h_upsilon->GetYaxis()->SetTitle("Candidates");
 
   h_Z->Draw("hist");
-  h_Z->GetXaxis()->SetTitle("#Upsilon [MeV]");
+  h_Z->GetXaxis()->SetTitle("Z mass [MeV]");
   h_Z->GetXaxis()->SetTitleOffset(1.5);
   h_Z->GetYaxis()->SetTitle("Candidates");
 
