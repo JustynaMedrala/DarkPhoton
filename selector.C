@@ -1,0 +1,138 @@
+#define selector_cxx
+// The class definition in unn.h has been generated automatically
+// by the ROOT utility TTree::MakeSelector(). This class is derived
+// from the ROOT class TSelector. For more information on the TSelector
+// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
+
+
+// The following methods are defined in this file:
+//    Begin():        called every time a loop on the tree starts,
+//                    a convenient place to create your histograms.
+//    SlaveBegin():   called after Begin(), when on PROOF called only on the
+//                    slave servers.
+//    Process():      called for each event, in this function you decide what
+//                    to read and fill your histograms.
+//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
+//                    called only on the slave servers.
+//    Terminate():    called at the end of the loop on the tree,
+//                    a convenient place to draw/fit your histograms.
+//
+// To use this file, try the following session on your Tree T:
+//
+// root> T->Process("selector.C")
+// root> T->Process("selector.C","some options")
+// root> T->Process("selector.C+")
+//
+
+
+#include "selector.h"
+#include <TH2.h>
+#include <TStyle.h>
+
+void selector::Begin(TTree * /*tree*/)
+{
+   // The Begin() function is called at the start of the query.
+   // When running with PROOF Begin() is only called on the client.
+   // The tree argument is deprecated (on PROOF 0 is passed).
+
+   TString option = GetOption();
+}
+
+void selector::SlaveBegin(TTree * /*tree*/)
+{
+   // The SlaveBegin() function is called after the Begin() function.
+   // When running with PROOF SlaveBegin() is called on each slave server.
+   // The tree argument is deprecated (on PROOF 0 is passed).
+
+   TString option = GetOption();
+   h_upsilon = new TH1F("Upsilon","",200,8000,12000);
+   fOutput->Add(h_upsilon);
+
+   h_Z = new TH1F("Z","",100,10000,150000);
+   fOutput->Add(h_Z);
+
+}
+
+Bool_t selector::Process(Long64_t entry)
+{
+   // The Process() function is called for each entry in the tree (or possibly
+   // keyed object in the case of PROOF) to be processed. The entry argument
+   // specifies which entry in the currently loaded tree is to be processed.
+   // When processing keyed objects with PROOF, the object is already loaded
+   // and is available via the fObject pointer.
+   //
+   // This function should contain the \"body\" of the analysis. It can contain
+   // simple or elaborate selection criteria, run algorithms on the data
+   // of the event and typically fill histograms.
+   //
+   // The processing can be stopped by calling Abort().
+   //
+   // Use fStatus to set the return value of TTree::Process().
+   //
+   // The return value is currently not used.
+
+   fReader.SetLocalEntry(entry);
+   //GetEnrty(entry);
+
+    if(*mup_PIDmu > 5 && *mun_PIDmu > 5 && *mun_ProbNNmu > 0.95 && *mup_ProbNNmu > 0.95){
+      if(*mup_PT > 10 && *mun_PT > 10){
+          h_upsilon->Fill(*A_MM);
+          h_Z->Fill(*A_MM);
+      }
+    }
+
+   return kTRUE;
+}
+
+void selector::SlaveTerminate()
+{
+   // The SlaveTerminate() function is called after all entries or objects
+   // have been processed. When running with PROOF SlaveTerminate() is called
+   // on each slave server.
+
+}
+
+void selector::Terminate()
+{
+   // The Terminate() function is the last function to be called during
+   // a query. It always runs on the client, it can be used to present
+   // the results graphically or save the results to file.
+   TH1F *fHist_Upsilon = dynamic_cast<TH1F *>(fOutput->FindObject(Form("Upsilon")));
+   TH1F *fHist_Z = dynamic_cast<TH1F *>(fOutput->FindObject(Form("Z")));
+
+   if (fHist_Upsilon) {
+      TCanvas *upsilon = new TCanvas("Upsilon","upsilon",200,10,800,600);
+      fHist_Upsilon->Draw("hist");
+      fHist_Upsilon->GetXaxis()->SetTitle("#Upsilon mass [MeV]");
+      fHist_Upsilon->GetXaxis()->SetTitleOffset(1.5);
+      fHist_Upsilon->GetYaxis()->SetTitle("Candidates");
+
+      gPad->SetLogx();
+      gPad->SetLogy();
+
+      upsilon->cd();
+      upsilon->Update();
+
+
+      TCanvas *Z = new TCanvas("Z","Z",200,10,800,600);
+      fHist_Z->Draw("hist");
+      fHist_Z->GetXaxis()->SetTitle("Z mass [MeV]");
+      fHist_Z->GetXaxis()->SetTitleOffset(1.5);
+      fHist_Z->GetYaxis()->SetTitle("Candidates");
+
+      gPad->SetLogx();
+      gPad->SetLogy();
+
+      Z->cd();
+      Z->Update();
+
+      TFile *outHistFile = TFile::Open("result.root","RECREATE");
+      outHistFile->cd();
+      fHist_Upsilon->Write();
+      fHist_Z->Write();
+      outHistFile->Close();
+   } else {
+      Warning("Terminate", "histogram not found");
+   }
+
+}
