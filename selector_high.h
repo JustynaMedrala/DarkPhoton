@@ -5,8 +5,8 @@
 // found on file: A2mumu_1.root
 //////////////////////////////////////////////////////////
 
-#ifndef selector_h
-#define selector_h
+#ifndef selector_high_h
+#define selector_high_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -21,14 +21,13 @@
 // Headers needed by this particular selector
 
 
-class selector : public TSelector {
+class selector_high : public TSelector {
 public :
    TTreeReader     fReader;  //!the tree reader
    TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
    TH1F *h_ID1 = nullptr;
    TH1F *h_ID2 = nullptr;
    TH1F *h_ID3 = nullptr;
-   TH1F *h_ID4 = nullptr;
    TH1F *h_high_mass = nullptr;
 
    // Readers to access the data (delete the ones you do not need).
@@ -226,8 +225,8 @@ public :
    TTreeReaderValue<Short_t> Polarity = {fReader, "Polarity"};
 
 
-   selector(TTree * /*tree*/ =0) { }
-   virtual ~selector() { }
+   selector_high(TTree * /*tree*/ =0) { }
+   virtual ~selector_high() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
    virtual void    SlaveBegin(TTree *tree);
@@ -242,14 +241,14 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
-   ClassDef(selector,0);
+   ClassDef(selector_high,0);
 
 };
 
 #endif
 
-#ifdef selector_cxx
-void selector::Init(TTree *tree)
+#ifdef selector_high_cxx
+void selector_high::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the reader is initialized.
@@ -261,7 +260,7 @@ void selector::Init(TTree *tree)
    fReader.SetTree(tree);
 }
 
-Bool_t selector::Notify()
+Bool_t selector_high::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -273,4 +272,4 @@ Bool_t selector::Notify()
 }
 
 
-#endif // #ifdef selector_cxx
+#endif // #ifdef selector_high_cxx

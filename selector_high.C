@@ -1,4 +1,4 @@
-#define selector_cxx
+#define selector_high_cxx
 // The class definition in unn.h has been generated automatically
 // by the ROOT utility TTree::MakeSelector(). This class is derived
 // from the ROOT class TSelector. For more information on the TSelector
@@ -25,11 +25,11 @@
 //
 
 #include "TLegend.h"
-#include "selector.h"
+#include "selector_high.h"
 #include <TH2.h>
 #include <TStyle.h>
 
-void selector::Begin(TTree * /*tree*/)
+void selector_high::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
    // When running with PROOF Begin() is only called on the client.
@@ -38,28 +38,19 @@ void selector::Begin(TTree * /*tree*/)
    TString option = GetOption();
 }
 
-void selector::SlaveBegin(TTree * /*tree*/)
+void selector_high::SlaveBegin(TTree * /*tree*/)
 {
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
 
    TString option = GetOption();
-   h_ID1 = new TH1F("ID_1","#mu^{+}#mu^{-}",280,150,1550);
-   fOutput->Add(h_ID1);
-
-   h_ID2 = new TH1F("ID_2","#mu^{+}#mu^{-}",280,150,1550);
-   fOutput->Add(h_ID2);
-
-   h_ID3 = new TH1F("ID_3","#mu^{+}#mu^{-}",280,150,1550);
-   fOutput->Add(h_ID3);
-
-   h_ID4 = new TH1F("ID_4","#mu^{+}#mu^{-}",100,0,1);
-   fOutput->Add(h_ID4);
+   h_high_mass = new TH1F("high mass","#mu^{+}#mu^{-}",2240,8000,120000);
+   fOutput->Add(h_high_mass);
 
 }
 
-Bool_t selector::Process(Long64_t entry)
+Bool_t selector_high::Process(Long64_t entry)
 {
    // The Process() function is called for each entry in the tree (or possibly
    // keyed object in the case of PROOF) to be processed. The entry argument
@@ -82,16 +73,14 @@ Bool_t selector::Process(Long64_t entry)
 
     if(*mun_ProbNNmu > 0.95 && *mup_ProbNNmu > 0.95){
       if(*mup_PT > 10 && *mun_PT > 10){
-	if(*mun_OWNPV_CHI2 < 8 && *mup_OWNPV_CHI2 < 8) h_ID1->Fill(*A_MM);
-        if(*mun_OWNPV_CHI2 < 16 && *mup_OWNPV_CHI2 < 16) h_ID2->Fill(*A_MM);
-        if(*mun_OWNPV_CHI2 < 30 && *mup_OWNPV_CHI2 < 30) h_ID3->Fill(*A_MM);
-       }
+        h_high_mass->Fill(*A_MM);
+      }
     }
 
    return kTRUE;
 }
 
-void selector::SlaveTerminate()
+void selector_high::SlaveTerminate()
 {
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
@@ -99,51 +88,41 @@ void selector::SlaveTerminate()
 
 }
 
-void selector::Terminate()
+void selector_high::Terminate()
 {
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
-   TH1F *fHist_ID1 = dynamic_cast<TH1F *>(fOutput->FindObject(Form("ID_1")));
-   TH1F *fHist_ID2 = dynamic_cast<TH1F *>(fOutput->FindObject(Form("ID_2")));
-   TH1F *fHist_ID3 = dynamic_cast<TH1F *>(fOutput->FindObject(Form("ID_3")));
-   //TH1F *fHist_ID4 = dynamic_cast<TH1F *>(fOutput->FindObject(Form("ID_4")));
+   TH1F *fHist_high_mass = dynamic_cast<TH1F *>(fOutput->FindObject(Form("high mass")));
 
-
-   if (fHist_ID1 && fHist_ID2 && fHist_ID3) {
-      TCanvas *ID = new TCanvas("ID","ID",200,10,900,700);
+   if (fHist_high_mass) {
+      TCanvas *high_mass = new TCanvas("high_mass","high_mass",200,10,900,700);
       gStyle->SetOptStat(0);
       //TPad *pad1 = new TPad("pad1","The pad with the function",0.05,0.1,0.95,0.95,21);       
-      fHist_ID3->SetTitle(" ");
-      //pad1->Draw();
-      fHist_ID3->SetLineColor(kRed);
-      fHist_ID1->SetLineColor(kGreen);
-      fHist_ID3->Draw("hist");
-      fHist_ID1->Draw("same hist");
-      fHist_ID3->GetXaxis()->SetTitle("ProbNNmu");
-      fHist_ID3->GetXaxis()->SetTitleOffset(1.0);
-      fHist_ID3->GetYaxis()->SetTitleOffset(1.4);
-      fHist_ID3->GetYaxis()->SetTitle("Candidates/5 [MeV/c^2]");
+      fHist_high_mass->SetTitle(" ");
+      fHist_high_mass->Draw("hist");
+      fHist_high_mass->GetXaxis()->SetTitle("m(#mu^{+}#mu^{-}) [MeV/c^{2}]");
+      fHist_high_mass->GetXaxis()->SetTitleOffset(1.0);
+      fHist_high_mass->GetYaxis()->SetTitleOffset(1.4);
+      fHist_high_mass->GetYaxis()->SetTitle("Candidates/50 [MeV/c^{2}]");
 
-      TLegend *leg1 = new TLegend(0.65, 0.65, 0.89, 0.89);
-      leg1->SetFillColor(kWhite);
-      leg1->SetLineColor(kWhite);
-      //leg1->AddEntry(fHist_ID1,"mup_ProbNNmu");
-      //leg1->AddEntry(fHist_ID3,"mun_ProbNNmu");
-      //leg1->AddEntry(fHist_ID3,"ProbNNmu > 0.9");
-      leg1->Draw();
+      //TLegend *leg1 = new TLegend(0.65, 0.65, 0.89, 0.89);
+      //leg1->SetFillColor(kWhite);
+      //leg1->SetLineColor(kWhite);
+      //leg1->AddEntry(fHist_ID1,"OWNPV_CHI2 < 8");
+      //leg1->AddEntry(fHist_ID2,"OWNPV_CHI2 < 50");
+      //leg1->AddEntry(fHist_ID3,"OWNPV_CHI2 < 100");
+      //leg1->Draw();
 
-      //gPad->SetLogx();
-      //gPad->SetLogy();
+      gPad->SetLogx();
+      gPad->SetLogy();
 
-      ID->cd();
-      ID->Update();
+      high_mass->cd();
+      high_mass->Update();
 
-      TFile *outHistFile = TFile::Open("result.root","RECREATE");
+      TFile *outHistFile = TFile::Open("result_high_mass.root","RECREATE");
       outHistFile->cd();
-      fHist_ID1->Write();
-      fHist_ID2->Write();
-      fHist_ID3->Write();
+      fHist_high_mass->Write();
       outHistFile->Close();
    } else {
       Warning("Terminate", "histogram not found");
