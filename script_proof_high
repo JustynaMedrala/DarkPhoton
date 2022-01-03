@@ -1,0 +1,12 @@
+{
+TString fullpath, name;
+
+TProof *proof = TProof::Open(" ");
+proof->SetParallel(5);
+TChain *ch = new TChain("DecayTree", "DecayTree");
+ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_1.root");
+ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_2.root");
+ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_3.root");
+ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_4.root");
+ch->Process("selector_high.C+");
+}

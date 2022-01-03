@@ -1,11 +1,18 @@
 {
+TString fullpath, name;
+
 TProof *proof = TProof::Open(" ");
 proof->SetParallel(5);
-TChain *ch = new TChain("DecayTree", "DecayTree");
-ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_1.root");
-ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_2.root");
-ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_3.root");
-ch->AddFile("/data2/muchaa/DP_ganga/A2mumu_4.root");
-ch->SetProof();
+TChain *ch = new TChain("A2mumu/DecayTree", "DecayTree");
+
+for(int i = 0; i < 467; i++){
+  fullpath = "/data4/muchaa/gangadir/workspace/muchaa/LocalXML/137/";
+  name.Form("%d", i);
+  fullpath += name;
+  fullpath += "/output/A2mumu_2018Turbo_low_mass.root";
+  ch->AddFile(fullpath);
+  fullpath = "";
+}
+//ch->AddFile("/data4/muchaa/gangadir/workspace/muchaa/LocalXML/137/1/output/A2mumu_2018Turbo_low_mass.root");
 ch->Process("selector.C+");
 }
